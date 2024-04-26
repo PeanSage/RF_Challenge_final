@@ -1,0 +1,73 @@
+This documents point is to highlight what each code does, key parts, as well as how to setup the hardware and execute the system. 
+
+All of these files should be included, recommend putting them into a folder inside your "workarea" directory.
+
+--1: files and descriptions
+
+future_work.txt: file highlighting the main downsides of the project as well ideas for future work to be done. 
+
+main.grc: you can open this file in gnuradio, it is simply the compiled block diagram that is made. good place to edit variables such as frequency ranges, sample rates, etc.
+
+main.py: the python file created by gnuradio after generating the code, essentially instead of gnuradio being in block diagrams it shows the nitty-gritty code. This file can give some problems when executed in tandem with other files, as it requires a .json file to execute outside of gnuradio.
+
+main_epy_block_0.py: our custom gnuradio sweep block, long story behind it but it looks for prominent noise in the environment while sweeping and then collects I/Q of prominent signals
+
+new_training.py: file to setup and train a new model. current model is a convolutional Neural network(CNN) made up of 1 convolutional layers, a handful of LSTM and other items. To be frank I know how they interact and what they do, but the mathematical processes behind them are far to complex. relu activation is smart to incorporate if you are trying to avoid overfitting, as well as the adam optimizer, also introduced dropout value of 0.5, this being that the neural connections between layers are off 50% of the time so that more and more nueral connections get experience in weighing out its decisions. The file has a custom data generator thats sole purpose is to pull data at random from the sample dataset so that the CNN cannot anticipate a pattern.
+
+predictions.csv: our results from out model being fed data from the SDR
+
+retraining.py: file to load and retrain a new ai-ml model for possibly further accuracy
+
+RF_challenge_gui.py: is our main file that we execute the fully functional system from. Contains a loaded ai-ml model, a gui to interact with, and calls our GNURadio sweep file(main.py). 
+
+RF_Challenge_report.pdf: Class report, gives decent detail as to the approach we did, type of model used, resources used, literature research, etc. 
+
+RF_challenge_rev5.h5: the saved ai-ml model. It can be saved as either .keras or .h5. On ubuntu and the setup we have for the final presentation it is .h5 or else we would get errors, but during training I was standardly saving it as .keras. 
+
+rf_classes.txt; our .txt file that contains all of the different signals we are training to recognize. having 9 different signal classes to classify. 
+
+setup_instructions.txt: how to setup the dependancies of this project, there being alot I saw it fit to allocate its own file.
+
+testing_data.dat: fresh data to confirm the accuracy of the model after training. Essentially a surefire way that the model is not too familiar with its training data, but at the same time accurate. 
+
+training_data/dat: the .dat file used to train the model. nothing much more to say. 
+
+--2: Running the system. 
+
+You will have to copy the text below, and create a new launch.json file in microsoft vscode. this launch.json allows the gnuradio sweep to run as a standalone outside of the gnuradio-companion. Creating a .json file is not hard, go to the debug window on the left hand side of the microsoft vscode. you will see highlighted text saying "create a new launch.json file" click that and select python interpreter, python file. then copy in the code below. Dont worry you only have to do this once:
+
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/usr/bin/python3",
+            "args": [
+                "-u",
+                "final_working/main.py"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+    ]
+}
+
+There might be a problem your python versions, standardly my python3 on ubuntu 20.04 is python 3.8.10.
+
+Assuming you have all the dependancies installed and .json created, running the system is the easy part. 
+First. 
+Take the SDR out of the block, do not drop it, screw the antenna in first before plugging it into the computer. This is very essential. 
+Second.
+Open up your virtual environment within the terminal, then type in "code". This will open microsoft vscode with your virtual environment, open up your RF_challenge_gui.py. go to the top  right and just run the file. while running gnuradio will pop up with a small graphical gui while sweeping. Sadly this is more a bug than a feature currently, making the whole execution of this system 2 clicks instead of 1. 
